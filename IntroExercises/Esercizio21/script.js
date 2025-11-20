@@ -1,8 +1,8 @@
 let brnContainer = document.getElementById("brnContainer");
 let resetBtn = document.getElementById("resetBtn");
-let index = 1;
+let index = 2;
 let generator = null;
-const MAX = localStorage.getItem("MAX");  
+const MAX = 3;  
 let totalSum = 0;
 
 
