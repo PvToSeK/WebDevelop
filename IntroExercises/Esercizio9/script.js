@@ -1,4 +1,4 @@
-const listaNomi = ["Diego", "Silvanokcs",  "Miriam"];
+const listaNomi = ["Diego", "Silvanokcs",  "Miriam", "p3tt3"];
 let bottone = document.getElementById("bottone");
 let risultato = document.getElementById("risultato");
 function cercaNome(){
