@@ -13,7 +13,7 @@ function startTimer(){
         tempo.timer = setTimeout(() => {
             parola.disabled = true;
             messaggio.textContent= "Tempo scaduto!";
-        }, tempo.seconds * 1000);
+        },3000);
     }
 }
 function completed(){

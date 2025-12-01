@@ -1,4 +1,8 @@
-let colori = ["rosso", "giallo", "verde"];
+let rosso = document.getElementById("rosso");
+let giallo = document.getElementById("giallo");
+let verde = document.getElementById("verde");
+
+let colori = ["rosso","giallo", "verde"];
 let indice = 0;
 let bottone = document.getElementById("avvia");
 
@@ -7,15 +11,17 @@ let semaforo = {
     timer: null
 };
 
-function spegniTutte() {
-    document.getElementById("rosso").style.opacity = "0.3";
-    document.getElementById("giallo").style.opacity = "0.3";
-    document.getElementById("verde").style.opacity = "0.3";
+function svuotaDiv(){
+    rosso.textContent = "";
+    giallo.textContent = "";
+    verde.textContent = "";
 }
 
-function accendiColore() {
-    spegniTutte();
-    document.getElementById(colori[indice]).style.opacity = "1";
+function accendiColore(){
+    svuotaDiv();
+
+    document.getElementById(colori[indice]).textContent = colori[indice];
+
     indice = (indice + 1) % colori.length;
 }
 
@@ -31,13 +37,9 @@ function stop() {
     bottone.textContent = "Accendi";
 }
 
-bottone.addEventListener("click", function() {
-    if (semaforo.running) {
-        stop();
-    } else {
-        start();
-    }
+bottone.addEventListener("click", () => {
+    if (semaforo.running) stop();
+    else start();
 });
-
 
 accendiColore();
