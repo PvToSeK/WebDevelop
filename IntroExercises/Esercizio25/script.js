@@ -1,7 +1,7 @@
 let generatorcontainer = document.getElementById("generatorcontainer");
 const simboli = ["🔥","⚡","💎","🌾"];
 const capacita = 20;
-let velocita = [100, 4000, 4000, 5000];
+let velocita = [100, 3000, 4000, 5000];
 
 for (let i = 0; i < 4; i++) {
   let bottone = document.createElement("button");
