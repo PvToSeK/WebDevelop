@@ -1,0 +1,59 @@
+ristoranti
+ristorante
+recensioni
+recensione
+
+1.Risorse
+ a. /ristoranti
+[{"id:1", "nome": Ristorante1,...., "owner" = "nomeOwner"}]
+
+b. /utenti
+	[{“id”:3}]
+c. /recensioni
+	{"id":" ","messagge": "", voto: "", likes: "", "userId": 2, "restaurantId": 4}
+	??: potremmo pensare di aggiungere un campo 'modifica'
+d. JSON Risposta a Review:
+	{"id":2, "reviewId": 4, " userId":6, "messagge": " "}
+2. ENDPOINTS
+	Estrarre tutti i ristoranti:
+	GET /ristoranti
+	Estrarre dettagli ristorante: 
+	
+	GET/ristoranti{id}
+	POST/ristoranti{id}
+	
+	Estrarre tutti i ristoranti(filtri):
+		GET/ristoranti?votoMedio={n}
+		GET /ristoranti?votoMEdio={n}&tipoCucina={tipoCucina}
+	Estrarre dettagli utente: 
+	GET/utenti{id}
+3. REQ-RES
+	a. GET /ristoranti(esteso con i filtri)
+	b.REQ(CLIENT)
+		Accept:"application/json"
+	c.RES(SERVER)
+		Status Code = 200
+		Content-type:"application/json" (MIME Type)
+		body/payload:
+		{restaurants: [{},{}] }
+	d. PUT /ristoranti{id}
+		REQUEST
+			Request Header:
+				Accept: "application/json"
+				Content-Type: "application/json"
+			JSON del ristorante da modificare
+		RESPONSE
+			403 se user non proprietario di quel ristorante
+		Content-Type: “application/json”
+		{msg:” non sei il proprietario”}
+		userId != ownerId
+
+
+		Se stretti: 404
+		Content-Type:”application/json”
+		Se “più gentili”: 200
+		Content-Type: “application/json”
+
+		
+
+		
