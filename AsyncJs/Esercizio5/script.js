@@ -7,6 +7,6 @@ fetch(URL).then(response => {
 }).then(data =>{
     let temperatura = data.current_weather.temperature;
     console.log("Temperatura attuale a Milano: " + temperatura + "°C")
-}).catch((error) =>{
+}).catch((error) => {
     console.log("ERRORE NELLA RICHIESTA:" , error)
 })
