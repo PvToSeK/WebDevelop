@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8" />
+    <title>Schema Completo: REST, HTTP, JS Asincrono, Node.js, cURL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+            --bg: #0f172a;
+            --bg-soft: #020617;
+            --card: #020617;
+            --card-soft: #020617;
+            --accent: #38bdf8;
+            --accent-soft: rgba(56,189,248,0.1);
+            --accent-strong: #0ea5e9;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --border: #1e293b;
+            --code-bg: #020617;
+            --badge-bg: #0f172a;
+            --danger: #f97373;
+            --success: #4ade80;
+            --warn: #fbbf24;
+            --shadow-soft: 0 18px 45px rgba(15,23,42,0.9);
+            --radius-lg: 18px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #000 100%);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        main {
+            width: 100%;
+            max-width: 1100px;
+            padding: 32px 16px 48px;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: clamp(1.8rem, 3vw, 2.2rem);
+            letter-spacing: 0.04em;
+            margin: 0 0 8px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #38bdf8, #a855f7);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .page-subtitle {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+
+        .tags {
+            margin-top: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tag {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            background: rgba(15,23,42,0.9);
+            border-radius: 999px;
+            padding: 4px 10px;
+            border: 1px solid rgba(148,163,184,0.3);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr);
+            gap: 18px;
+        }
+
+        @media (max-width: 880px) {
+            .grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .card {
+            background: radial-gradient(circle at top, rgba(30,64,175,0.6), rgba(15,23,42,0.97));
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(148,163,184,0.2);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 0 0, rgba(56,189,248,0.2), transparent 60%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .card-inner {
+            position: relative;
+            padding: 18px 18px 20px;
+            backdrop-filter: blur(14px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 1.05rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #e5e7eb;
+        }
+
+        .card-section-index {
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .pill {
+            border-radius: 999px;
+            padding: 3px 9px;
+            border: 1px solid rgba(148,163,184,0.35);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            background: rgba(15,23,42,0.9);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: var(--badge-bg);
+            border: 1px solid rgba(148,163,184,0.4);
+            color: var(--muted);
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--accent);
+            box-shadow: 0 0 0 3px rgba(56,189,248,0.25);
+        }
+
+        .section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(148,163,184,0.5);
+        }
+
+        .section:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .section-title {
+            margin: 0 0 4px;
+            font-size: 0.9rem;
+            color: var(--accent-strong);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        p {
+            margin: 4px 0 6px;
+            font-size: 0.84rem;
+            line-height: 1.5;
+        }
+
+        ul {
+            margin: 4px 0 6px;
+            padding-left: 18px;
+        }
+
+        li {
+            font-size: 0.8rem;
+            margin: 2px 0;
+        }
+
+        .mini-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 6px;
+        }
+
+        .mini-card {
+            border-radius: var(--radius-sm);
+            background: radial-gradient(circle at top, rgba(15,23,42,0.9), rgba(15,23,42,1));
+            border: 1px solid rgba(148,163,184,0.3);
+            padding: 6px 8px;
+        }
+
+        .mini-title {
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            margin: 0 0 2px;
+        }
+
+        .mini-body {
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 4px 0 6px;
+            font-size: 0.72rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 3px 5px;
+            border: 1px solid rgba(51,65,85,0.9);
+        }
+
+        .table th {
+            background: rgba(15,23,42,0.95);
+            color: #e5e7eb;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .table tr:nth-child(even) td {
+            background: rgba(15,23,42,0.92);
+        }
+
+        .table tr:nth-child(odd) td {
+            background: rgba(15,23,42,1);
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 6px 0 4px;
+        }
+
+        .chip {
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.4);
+            background: rgba(15,23,42,0.95);
+            color: var(--muted);
+        }
+
+        .chip--ok {
+            border-color: rgba(74,222,128,0.7);
+            color: #bbf7d0;
+        }
+
+        .chip--warn {
+            border-color: rgba(251,191,36,0.7);
+            color: #fef9c3;
+        }
+
+        .chip--bad {
+            border-color: rgba(248,113,113,0.7);
+            color: #fecaca;
+        }
+
+        .pill-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        .code {
+            font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.78rem;
+            background: radial-gradient(circle at top left, rgba(15,23,42,0.9), #020617);
+            border-radius: 10px;
+            padding: 7px 9px;
+            border: 1px solid rgba(30,64,175,0.7);
+            margin: 5px 0 7px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.45;
+        }
+
+        .code-inline {
+            font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.78rem;
+            background: rgba(15,23,42,0.9);
+            padding: 1px 4px;
+            border-radius: 4px;
+            border: 1px solid rgba(51,65,85,0.9);
+        }
+
+        .code-tag {
+            color: #93c5fd;
+        }
+
+        .code-str {
+            color: #fbbf24;
+        }
+
+        .code-key {
+            color: #22c55e;
+        }
+
+        .code-kw {
+            color: #a855f7;
+        }
+
+        .code-fn {
+            color: #38bdf8;
+        }
+
+        .code-num {
+            color: #f97373;
+        }
+
+        .code-comm {
+            color: #64748b;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            margin-right: 6px;
+        }
+
+        .status-dot--2xx {
+            background: var(--success);
+            box-shadow: 0 0 0 3px rgba(74,222,128,0.25);
+        }
+
+        .status-dot--4xx {
+            background: var(--warn);
+            box-shadow: 0 0 0 3px rgba(250,204,21,0.25);
+        }
+
+        .status-dot--5xx {
+            background: var(--danger);
+            box-shadow: 0 0 0 3px rgba(248,113,113,0.3);
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin: 2px 0;
+        }
+
+        .flag-list {
+            margin: 6px 0 2px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 4px;
+        }
+
+        .flag {
+            font-size: 0.78rem;
+            background: rgba(15,23,42,0.95);
+            border-radius: 9px;
+            border: 1px solid rgba(148,163,184,0.4);
+            padding: 4px 7px;
+        }
+
+        .flag strong {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .footer-note {
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .highlight {
+            color: #a5b4fc;
+            font-weight: 600;
+        }
+
+        .col-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <header class="page-header">
+        <h1 class="page-title">Schema Completo: REST · HTTP · JS Asincrono · Node.js · cURL</h1>
+        <p class="page-subtitle">Cheat sheet da studio per verifiche su API REST, status code, Promise, async/await, Node.js, NPM e cURL.</p>
+        <div class="tags">
+            <span class="tag">REST &amp; HTTP</span>
+            <span class="tag">Promise &amp; async/await</span>
+            <span class="tag">Node.js &amp; NPM</span>
+            <span class="tag">cURL</span>
+        </div>
+    </header>
+
+    <section class="grid">
+        <!-- COLONNA SINISTRA: REST, HTTP, MIME, SemVer, NPM -->
+        <article class="card">
+            <div class="card-inner">
+                <div class="card-header">
+                    <div>
+                        <p class="card-title">REST &amp; HTTP</p>
+                        <p class="card-section-index">1–5 · Design API, status code, Content-Type, versioning, NPM</p>
+                    </div>
+                    <span class="pill">Server side</span>
+                </div>
+
+                <!-- 1. REST – Principi Fondamentali -->
+                <section class="section">
+                    <h2 class="section-title">1. REST – Principi fondamentali</h2>
+                    <p class="subtitle">REST è uno stile architetturale per API basate su HTTP.</p>
+
+                    <ul>
+                        <li><span class="highlight">Stateless</span>: ogni richiesta contiene tutte le info necessarie, il server non ricorda le richieste precedenti.</li>
+                        <li><span class="highlight">Basato su risorse</span>: URI come <span class="code-inline">/users</span>, <span class="code-inline">/users/10</span>.</li>
+                        <li>Metodi HTTP usati come CRUD (GET, POST, PUT, PATCH, DELETE).</li>
+                        <li>Rappresentazioni tipiche: JSON, XML, HTML.</li>
+                    </ul>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Metodo</th>
+                                <th>Azione</th>
+                                <th>Idempotente</th>
+                                <th>Side effects</th>
+                                <th>Uso tipico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>GET</td>
+                                <td>Lettura</td>
+                                <td>Sì</td>
+                                <td>No</td>
+                                <td>Recuperare dati (safe)</td>
+                            </tr>
+                            <tr>
+                                <td>POST</td>
+                                <td>Creazione</td>
+                                <td>No</td>
+                                <td>Sì</td>
+                                <td>Creare nuove risorse</td>
+                            </tr>
+                            <tr>
+                                <td>PUT</td>
+                                <td>Sostituzione completa</td>
+                                <td>Sì</td>
+                                <td>Sì</td>
+                                <td>Aggiorna o crea intera risorsa</td>
+                            </tr>
+                            <tr>
+                                <td>PATCH</td>
+                                <td>Modifica parziale</td>
+                                <td>Non sempre</td>
+                                <td>Sì</td>
+                                <td>Aggiorna campi specifici</td>
+                            </tr>
+                            <tr>
+                                <td>DELETE</td>
+                                <td>Eliminazione</td>
+                                <td>Sì</td>
+                                <td>Sì</td>
+                                <td>Cancella risorsa</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><span class="highlight">Idempotenza</span>: N chiamate producono lo stesso risultato finale della prima.</p>
+                    <ul>
+                        <li>GET <span class="code-inline">/concerti/10</span> ×5 → solo lettura, nessuna modifica.</li>
+                        <li>POST <span class="code-inline">/biglietti</span> ×5 con lo stesso body → 5 biglietti creati (side effects).</li>
+                        <li>DELETE <span class="code-inline">/biglietti/7</span> ripetuto → prima 204, poi 404 o ancora 204 (idempotente).</li>
+                    </ul>
+
+                    <div class="chip-row">
+                        <span class="chip chip--ok">GET: safe &amp; idempotente</span>
+                        <span class="chip chip--bad">POST: non idempotente</span>
+                    </div>
+                </section>
+
+                <!-- 1.2 Nesting -->
+                <section class="section">
+                    <h2 class="section-title">1.2 Nesting di risorse</h2>
+                    <p class="subtitle">Rappresenta relazioni gerarchiche parent → child.</p>
+                    <div class="mini-grid">
+                        <div class="mini-card">
+                            <p class="mini-title">Esempi</p>
+                            <p class="mini-body">
+                                <span class="code-inline">/artisti/3/concerti</span> – concerti dell’artista 3<br />
+                                <span class="code-inline">/artisti/3/concerti/12</span> – concerto 12 dell’artista 3<br />
+                                <span class="code-inline">/corsi/5/prenotazioni</span> – prenotazioni corso 5
+                            </p>
+                        </div>
+                        <div class="mini-card">
+                            <p class="mini-title">Regole</p>
+                            <ul>
+                                <li>Usare nesting se c’è parent-child chiaro.</li>
+                                <li>Il parent deve esistere per accedere al child.</li>
+                                <li>Evitare più di 2–3 livelli.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 1.3 PUT vs POST -->
+                <section class="section">
+                    <h2 class="section-title">1.3 PUT vs POST per creazione</h2>
+                    <div class="mini-grid">
+                        <div class="mini-card">
+                            <p class="mini-title">POST /corsi</p>
+                            <p class="mini-body">URI di collezione, server genera l’ID.</p>
+                            <div class="code">
+<span class="code-kw">POST</span> <span class="code-str">/corsi</span>
+Body: {<span class="code-str">"nome"</span>: <span class="code-str">"Yoga"</span>, <span class="code-str">"orario"</span>: <span class="code-str">"10:00"</span>}
+→ 201 Created, Location: <span class="code-str">/corsi/23</span>
+                            </div>
+                        </div>
+                        <div class="mini-card">
+                            <p class="mini-title">PUT /corsi/100</p>
+                            <p class="mini-body">Client conosce l’URI completo.</p>
+                            <div class="code">
+<span class="code-kw">PUT</span> <span class="code-str">/corsi/100</span>
+Body: {<span class="code-str">"nome"</span>: <span class="code-str">"Yoga"</span>, <span class="code-str">"orario"</span>: <span class="code-str">"10:00"</span>}
+→ crea se non esiste, altrimenti sostituisce
+                            </div>
+                        </div>
+                    </div>
+                    <p><span class="highlight">POST</span>: server decide l’URI (collezione). <span class="highlight">PUT</span>: client decide l’URI della risorsa specifica.</p>
+                </section>
+
+                <!-- 1.4 Stateless -->
+                <section class="section">
+                    <h2 class="section-title">1.4 Principio stateless</h2>
+                    <p class="subtitle">Il server non mantiene stato tra le richieste.</p>
+
+                    <div class="mini-grid">
+                        <div class="mini-card">
+                            <p class="mini-title">1) Client-side state</p>
+                            <ul>
+                                <li>Carrello in memoria/localStorage.</li>
+                                <li>Ad ogni richiesta il client manda tutti i dati necessari.</li>
+                                <li>Alla conferma: <span class="code-inline">POST /ordini</span> con l’intero carrello.</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card">
+                            <p class="mini-title">2) Server-side con token</p>
+                            <ul>
+                                <li>Server crea sessione/carrello con ID.</li>
+                                <li>Client invia token/session ID in ogni richiesta.</li>
+                                <li>Più vicino alle sessioni tradizionali, utile per multi-device.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <ul>
+                        <li>Ogni richiesta deve essere auto-contenuta.</li>
+                        <li>Autenticazione tipica: token/JWT a ogni chiamata.</li>
+                        <li>Scalabilità: qualsiasi server può gestire qualsiasi richiesta.</li>
+                    </ul>
+                </section>
+
+                <!-- 2. HTTP Status Code -->
+                <section class="section">
+                    <h2 class="section-title">2. HTTP status code</h2>
+                    <p class="subtitle">Classi principali: 2xx successo, 4xx errore client, 5xx errore server.</p>
+
+                    <div class="status-row">
+                        <span class="status-dot status-dot--2xx"></span>
+                        <span>2xx – richiesta riuscita (OK, Created, No Content).</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-dot status-dot--4xx"></span>
+                        <span>4xx – problema causato dal client (Bad Request, Unauthorized, Not Found, Conflict).</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-dot status-dot--5xx"></span>
+                        <span>5xx – errore del server (Internal Server Error, Service Unavailable).</span>
+                    </div>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Codice</th>
+                                <th>Significato</th>
+                                <th>Quando usarlo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>200 OK</td>
+                                <td>Successo con body</td>
+                                <td>GET, PATCH riusciti</td>
+                            </tr>
+                            <tr>
+                                <td>201 Created</td>
+                                <td>Risorsa creata</td>
+                                <td>POST riuscito</td>
+                            </tr>
+                            <tr>
+                                <td>204 No Content</td>
+                                <td>Successo senza body</td>
+                                <td>DELETE, PUT riusciti</td>
+                            </tr>
+                            <tr>
+                                <td>400 Bad Request</td>
+                                <td>Richiesta malformata</td>
+                                <td>JSON invalido, parametri mancanti</td>
+                            </tr>
+                            <tr>
+                                <td>401 Unauthorized</td>
+                                <td>Non autenticato</td>
+                                <td>Token mancante/scaduto</td>
+                            </tr>
+                            <tr>
+                                <td>403 Forbidden</td>
+                                <td>Non autorizzato</td>
+                                <td>Autenticato ma senza permessi</td>
+                            </tr>
+                            <tr>
+                                <td>404 Not Found</td>
+                                <td>Risorsa non trovata</td>
+                                <td><span class="code-inline">GET /concerti/999</span> inesistente</td>
+                            </tr>
+                            <tr>
+                                <td>405 Method Not Allowed</td>
+                                <td>Metodo non permesso</td>
+                                <td>DELETE su risorsa non cancellabile</td>
+                            </tr>
+                            <tr>
+                                <td>409 Conflict</td>
+                                <td>Conflitto con stato corrente</td>
+                                <td>Prenotare corso già completo</td>
+                            </tr>
+                            <tr>
+                                <td>500 Internal Server Error</td>
+                                <td>Errore generico server</td>
+                                <td>Bug, crash</td>
+                            </tr>
+                            <tr>
+                                <td>503 Service Unavailable</td>
+                                <td>Servizio non disponibile</td>
+                                <td>Database offline, manutenzione</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p class="pill-label">Scenari tipici</p>
+                    <ul>
+                        <li><span class="code-inline">GET /concerti/999</span> inesistente → 404 Not Found.</li>
+                        <li>DB offline → 503 Service Unavailable.</li>
+                        <li>POST concerto creato → 201 Created + Location <span class="code-inline">/concerti/15</span>.</li>
+                        <li>PUT corso aggiornato → 200 OK (con body) o 204 No Content.</li>
+                        <li>Corso già pieno → 409 Conflict.</li>
+                    </ul>
+
+                    <div class="chip-row">
+                        <span class="chip chip--warn">fetch non fallisce su 404/500: controllare sempre <span class="code-inline">response.ok</span></span>
+                    </div>
+                </section>
+
+                <!-- 3. MIME Types -->
+                <section class="section">
+                    <h2 class="section-title">3. MIME Types &amp; Content-Type</h2>
+                    <p class="subtitle">Indicano al server/cliente il tipo di contenuto del body.</p>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>MIME type</th>
+                                <th>Descrizione</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>application/json</td>
+                                <td>Dati JSON</td>
+                            </tr>
+                            <tr>
+                                <td>text/html</td>
+                                <td>Documento HTML</td>
+                            </tr>
+                            <tr>
+                                <td>text/plain</td>
+                                <td>Testo semplice</td>
+                            </tr>
+                            <tr>
+                                <td>application/xml</td>
+                                <td>Dati XML</td>
+                            </tr>
+                            <tr>
+                                <td>multipart/form-data</td>
+                                <td>Form con file</td>
+                            </tr>
+                            <tr>
+                                <td>application/x-www-form-urlencoded</td>
+                                <td>Form standard</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p class="pill-label">Esempio POST JSON</p>
+                    <div class="code">
+<span class="code-kw">fetch</span>(URL, {
+    <span class="code-key">method</span>: <span class="code-str">"POST"</span>,
+    <span class="code-key">headers</span>: { <span class="code-str">"Content-Type"</span>: <span class="code-str">"application/json"</span> },
+    <span class="code-key">body</span>: <span class="code-kw">JSON</span>.stringify({ <span class="code-key">name</span>: <span class="code-str">"Mario"</span> })
+});
+                    </div>
+                    <ul>
+                        <li>Il server deve sapere come parsare il body.</li>
+                        <li>Senza <span class="code-inline">Content-Type</span> corretto, parsing può fallire.</li>
+                        <li>Molti framework rispondono 400 Bad Request se il tipo non è coerente.</li>
+                    </ul>
+                </section>
+
+                <!-- 4. SemVer -->
+                <section class="section">
+                    <h2 class="section-title">4. Semantic Versioning (SemVer)</h2>
+                    <p class="subtitle">Formato: MAJOR.MINOR.PATCH (es. 4.18.2).</p>
+
+                    <div class="mini-grid">
+                        <div class="mini-card">
+                            <p class="mini-title">PATCH (x.y.<span class="code-num">+1</span>)</p>
+                            <ul>
+                                <li>Bugfix e correzioni.</li>
+                                <li>Retrocompatibile.</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card">
+                            <p class="mini-title">MINOR (x.<span class="code-num">+1</span>.0)</p>
+                            <ul>
+                                <li>Nuove feature.</li>
+                                <li>Retrocompatibile.</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card">
+                            <p class="mini-title">MAJOR (<span class="code-num">+1</span>.0.0)</p>
+                            <ul>
+                                <li>Breaking changes.</li>
+                                <li>Può rompere codice esistente.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <p class="pill-label">Simboli in package.json</p>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Simbolo</th>
+                                <th>Significato</th>
+                                <th>Range</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>^4.18.0</td>
+                                <td>Minor + patch</td>
+                                <td>&gt;=4.18.0 &lt;5.0.0</td>
+                            </tr>
+                            <tr>
+                                <td>~4.18.0</td>
+                                <td>Solo patch</td>
+                                <td>&gt;=4.18.0 &lt;4.19.0</td>
+                            </tr>
+                            <tr>
+                                <td>4.18.0</td>
+                                <td>Versione fissa</td>
+                                <td>Solo 4.18.0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <ul>
+                        <li><span class="code-inline">^4.18.0</span> → può installare 4.18.5 o 4.20.1, ma non 5.0.0.</li>
+                        <li><span class="code-inline">~4.18.0</span> → può installare 4.18.5, ma non 4.19.0.</li>
+                    </ul>
+                </section>
+
+                <!-- 5. NPM -->
+                <section class="section">
+                    <h2 class="section-title">5. NPM (Node Package Manager)</h2>
+                    <p class="subtitle">Package manager predefinito per progetti Node.js.</p>
+
+                    <ul>
+                        <li>Gestisce dipendenze, versioni e script.</li>
+                        <li>Registry online con milioni di pacchetti.</li>
+                        <li>Installato automaticamente con Node.js.</li>
+                    </ul>
+
+                    <p class="pill-label">File principali</p>
+                    <ul>
+                        <li><span class="code-inline">package.json</span>: metadati e dipendenze.</li>
+                        <li><span class="code-inline">package-lock.json</span>: versioni esatte installate.</li>
+                        <li><span class="code-inline">node_modules/</span>: cartella dei pacchetti.</li>
+                    </ul>
+
+                    <p class="pill-label">Comandi comuni</p>
+                    <div class="code">
+<span class="code-comm"># installa tutte le dipendenze</span>
+npm install
+
+<span class="code-comm"># installa un pacchetto</span>
+npm install express
+
+<span class="code-comm"># aggiorna i pacchetti</span>
+npm update
+
+<span class="code-comm"># rimuove un pacchetto</span>
+npm uninstall express
+
+<span class="code-comm"># esegue uno script</span>
+npm run test
+                    </div>
+                </section>
+            </div>
+        </article>
+
+        <!-- COLONNA DESTRA: Promise, async/await, fetch, error handling, Node.js, cURL, riepilogo -->
+        <article class="card">
+            <div class="card-inner">
+                <div class="card-header">
+                    <div>
+                        <p class="card-title">JS asincrono, Node.js &amp; cURL</p>
+                        <p class="card-section-index">6–14 · Promise, async/await, fetch, errori, Node.js, cURL</p>
+                    </div>
+                    <span class="badge"><span class="badge-dot"></span>Client &amp; server</span>
+                </div>
+
+                <!-- 6. Promise -->
+                <section class="section">
+                    <h2 class="section-title">6. Promise in JavaScript</h2>
+                    <p class="subtitle">Rappresentano un valore disponibile in futuro.</p>
+
+                    <p class="pill-label">Creazione</p>
+                    <div class="code">
+<span class="code-kw">new</span> <span class="code-kw">Promise</span>((resolve, reject) =&gt; {
+    <span class="code-comm">// operazione asincrona</span>
+    <span class="code-kw">if</span> (successo) {
+        resolve(valore);
+    } <span class="code-kw">else</span> {
+        reject(errore);
+    }
+});
+                    </div>
+
+                    <p class="pill-label">Stati</p>
+                    <ul>
+                        <li><span class="highlight">pending</span>: in attesa, <span class="code-inline">result = undefined</span>.</li>
+                        <li><span class="highlight">fulfilled</span>: completata con successo → <span class="code-inline">resolve(value)</span>.</li>
+                        <li><span class="highlight">rejected</span>: errore → <span class="code-inline">reject(error)</span>.</li>
+                    </ul>
+
+                    <p class="pill-label">Metodi</p>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Metodo</th>
+                                <th>Gestisce</th>
+                                <th>Quando</th>
+                                <th>Ritorna</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>then()</td>
+                                <td>resolve</td>
+                                <td>Solo successo</td>
+                                <td>Nuova Promise</td>
+                            </tr>
+                            <tr>
+                                <td>catch()</td>
+                                <td>reject + errori</td>
+                                <td>Solo errore</td>
+                                <td>Nuova Promise</td>
+                            </tr>
+                            <tr>
+                                <td>finally()</td>
+                                <td>Entrambi</td>
+                                <td>Sempre</td>
+                                <td>Promise originale</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <ul>
+                        <li><span class="highlight">Una Promise settle una sola volta</span> (fulfilled o rejected) e non cambia più.</li>
+                        <li><span class="code-inline">catch()</span> intercetta <span class="code-inline">reject()</span>, <span class="code-inline">throw</span> ed errori nei <span class="code-inline">then()</span>.</li>
+                        <li><span class="code-inline">finally()</span> non modifica il risultato, è solo per cleanup.</li>
+                    </ul>
+                </section>
+
+                <!-- 7. async/await -->
+                <section class="section">
+                    <h2 class="section-title">7. async/await</h2>
+                    <p class="subtitle">Sintassi più leggibile per lavorare con Promise.</p>
+
+                    <p class="pill-label">Funzioni async</p>
+                    <div class="code">
+<span class="code-kw">async function</span> ok() {
+    <span class="code-kw">return</span> <span class="code-num">1</span>; <span class="code-comm">// Promise.resolve(1)</span>
+}
+
+<span class="code-kw">async function</span> error() {
+    <span class="code-kw">throw new</span> Error(<span class="code-str">"..."</span>); <span class="code-comm">// Promise.reject(...)</span>
+}
+                    </div>
+
+                    <p class="pill-label">await</p>
+                    <div class="code">
+<span class="code-kw">async function</span> caricaDati() {
+    console.log(<span class="code-str">"Inizio richiesta"</span>);
+    <span class="code-kw">const</span> response = <span class="code-kw">await</span> fetch(URL);
+    console.log(<span class="code-str">"Risposta ricevuta"</span>);
+    <span class="code-kw">const</span> data = <span class="code-kw">await</span> response.json();
+    console.log(<span class="code-str">"Dati parsati"</span>);
+    <span class="code-kw">return</span> data;
+}
+                    </div>
+
+                    <ul>
+                        <li><span class="code-inline">await</span> si può usare solo dentro funzioni <span class="code-inline">async</span>.</li>
+                        <li>Sospende la funzione, non il thread JS (event loop continua).</li>
+                        <li>Se la Promise è rejected, viene generato un errore catturabile con <span class="code-inline">try/catch</span>.</li>
+                    </ul>
+
+                    <p class="pill-label">async/await vs then/catch</p>
+                    <ul>
+                        <li><span class="highlight">async/await</span>: codice più sequenziale, usa <span class="code-inline">try/catch</span>.</li>
+                        <li><span class="highlight">then/catch</span>: catene di callback, evidenzia la natura asincrona.</li>
+                    </ul>
+                </section>
+
+                <!-- 8. fetch -->
+                <section class="section">
+                    <h2 class="section-title">8. fetch – richieste HTTP</h2>
+                    <p class="subtitle">Interfaccia moderna per richieste HTTP, basata su Promise.</p>
+
+                    <p class="pill-label">Sintassi base</p>
+                    <div class="code">
+<span class="code-kw">let</span> response = fetch(URL, [options]);
+                    </div>
+
+                    <p class="pill-label">Esempi metodi</p>
+                    <div class="code">
+<span class="code-comm">// GET (default)</span>
+fetch(<span class="code-str">"https://api.example.com/users"</span>);
+
+<span class="code-comm">// POST</span>
+fetch(URL, {
+    <span class="code-key">method</span>: <span class="code-str">"POST"</span>,
+    <span class="code-key">headers</span>: { <span class="code-str">"Content-Type"</span>: <span class="code-str">"application/json"</span> },
+    <span class="code-key">body</span>: <span class="code-kw">JSON</span>.stringify({ <span class="code-key">name</span>: <span class="code-str">"Mario"</span> })
+});
+
+<span class="code-comm">// PATCH</span>
+fetch(<span class="code-str">"/corsi/8"</span>, {
+    <span class="code-key">method</span>: <span class="code-str">"PATCH"</span>,
+    <span class="code-key">headers</span>: { <span class="code-str">"Content-Type"</span>: <span class="code-str">"application/json"</span> },
+    <span class="code-key">body</span>: <span class="code-kw">JSON</span>.stringify({ <span class="code-key">posti</span>: <span class="code-num">15</span> })
+});
+
+<span class="code-comm">// DELETE</span>
+fetch(URL, { <span class="code-key">method</span>: <span class="code-str">"DELETE"</span> });
+                    </div>
+
+                    <p class="pill-label">PUT vs PATCH (aggiornamento)</p>
+                    <ul>
+                        <li><span class="highlight">PUT</span> sostituisce completamente la risorsa → devi inviare tutti i campi.</li>
+                        <li><span class="highlight">PATCH</span> modifica solo i campi indicati → ideale per update parziali.</li>
+                    </ul>
+
+                    <p class="pill-label">Response object</p>
+                    <div class="code">
+<span class="code-kw">const</span> status = response.status;   <span class="code-comm">// es. 200, 404</span>
+<span class="code-kw">const</span> ok = response.ok;           <span class="code-comm">// true se 2xx</span>
+
+<span class="code-kw">if</span> (!response.ok) {
+    <span class="code-kw">throw new</span> Error(<span class="code-str">`HTTP error: ${response.status}`</span>);
+}
+
+<span class="code-kw">const</span> text = <span class="code-kw">await</span> response.text();
+<span class="code-kw">const</span> data = <span class="code-kw">await</span> response.json();
+                    </div>
+
+                    <ul>
+                        <li>Il body è uno stream, i metodi <span class="code-inline">text()</span>/<span class="code-inline">json()</span> sono asincroni.</li>
+                        <li><span class="highlight">response.json()</span> legge lo stream, ricostruisce il testo e fa il parsing JSON.</li>
+                    </ul>
+                </section>
+
+                <!-- 9. Error Handling -->
+                <section class="section">
+                    <h2 class="section-title">9. Error handling</h2>
+                    <p class="subtitle">Gestione degli errori con oggetto Error, try/catch e throw.</p>
+
+                    <p class="pill-label">Oggetto Error</p>
+                    <div class="code">
+<span class="code-kw">const</span> err = <span class="code-kw">new</span> Error(<span class="code-str">"messaggio"</span>);
+console.log(err.message);
+                    </div>
+
+                    <ul>
+                        <li>Proprietà principali: <span class="code-inline">message</span>, <span class="code-inline">name</span>, spesso <span class="code-inline">stack</span>.</li>
+                    </ul>
+
+                    <p class="pill-label">try/catch e throw</p>
+                    <div class="code">
+<span class="code-kw">try</span> {
+    <span class="code-kw">if</span> (qualcosaVaMale) {
+        <span class="code-kw">throw new</span> Error(<span class="code-str">"Errore generato manualmente"</span>);
+    }
+} <span class="code-kw">catch</span> (err) {
+    console.error(err.message);
+}
+                    </div>
+
+                    <ul>
+                        <li><span class="code-inline">throw</span> interrompe il flusso normale e passa il controllo al <span class="code-inline">catch</span> più vicino.</li>
+                        <li>In una Promise, un <span class="code-inline">throw</span> la rende rejected.</li>
+                    </ul>
+
+                    <p class="pill-label">Errori comuni</p>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Significato</th>
+                                <th>Esempio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>TypeError</td>
+                                <td>Tipo sbagliato</td>
+                                <td><span class="code-inline">null.toString()</span></td>
+                            </tr>
+                            <tr>
+                                <td>RangeError</td>
+                                <td>Valore fuori range</td>
+                                <td><span class="code-inline">new Array(-1)</span></td>
+                            </tr>
+                            <tr>
+                                <td>ReferenceError</td>
+                                <td>Variabile mancante</td>
+                                <td>Uso di variabile non dichiarata</td>
+                            </tr>
+                            <tr>
+                                <td>SyntaxError</td>
+                                <td>Sintassi errata</td>
+                                <td>JSON malformato</td>
+                            </tr>
+                            <tr>
+                                <td>NetworkError</td>
+                                <td>Errore di rete</td>
+                                <td><span class="code-inline">fetch</span> fallisce per connessione</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- 10. Esempi completi REST API -->
+                <section class="section">
+                    <h2 class="section-title">10. Esempi completi REST API</h2>
+                    <p class="subtitle">Fetch con async/await e con then/catch.</p>
+
+                    <p class="pill-label">10.1 async/await</p>
+                    <div class="code">
+<span class="code-kw">async function</span> getUsers() {
+    <span class="code-kw">try</span> {
+        <span class="code-kw">const</span> response = <span class="code-kw">await</span> fetch(<span class="code-str">"https://api.example.com/users"</span>);
+        <span class="code-kw">if</span> (!response.ok) {
+            <span class="code-kw">throw new</span> Error(<span class="code-str">`HTTP error: ${response.status}`</span>);
+        }
+        <span class="code-kw">const</span> users = <span class="code-kw">await</span> response.json();
+        console.log(<span class="code-str">"Utenti recuperati:"</span>, users);
+        <span class="code-kw">return</span> users;
+    } <span class="code-kw">catch</span> (err) {
+        console.error(<span class="code-str">"Errore nel recupero:"</span>, err.message);
+    } <span class="code-kw">finally</span> {
+        console.log(<span class="code-str">"Richiesta conclusa"</span>);
+    }
+}
+                    </div>
+
+                    <p class="pill-label">10.2 then/catch</p>
+                    <div class="code">
+fetch(<span class="code-str">"https://api.example.com/users"</span>)
+    .then(response =&gt; {
+        <span class="code-kw">if</span> (!response.ok) {
+            <span class="code-kw">throw new</span> Error(<span class="code-str">`HTTP error: ${response.status}`</span>);
+        }
+        <span class="code-kw">return</span> response.json();
+    })
+    .then(users =&gt; {
+        console.log(<span class="code-str">"Utenti recuperati:"</span>, users);
+    })
+    .catch(err =&gt; {
+        console.error(<span class="code-str">"Errore:"</span>, err.message);
+    })
+    .finally(() =&gt; {
+        console.log(<span class="code-str">"Richiesta conclusa"</span>);
+    });
+                    </div>
+                </section>
+
+                <!-- 11. Node.js -->
+                <section class="section">
+                    <h2 class="section-title">11. Node.js</h2>
+                    <p class="subtitle">Runtime per eseguire JavaScript lato server.</p>
+
+                    <ul>
+                        <li>Non è un linguaggio, ma un ambiente basato su motore V8.</li>
+                        <li>Supporta server HTTP e API REST.</li>
+                        <li>Event-driven, non-blocking I/O, single-threaded con event loop.</li>
+                    </ul>
+
+                    <p class="pill-label">11.1 server.listen()</p>
+                    <div class="code">
+<span class="code-kw">const</span> http = require(<span class="code-str">'http'</span>);
+
+<span class="code-kw">const</span> server = http.createServer((req, res) =&gt; {
+    res.writeHead(<span class="code-num">200</span>, { <span class="code-str">'Content-Type'</span>: <span class="code-str">'text/plain'</span> });
+    res.end(<span class="code-str">'Hello World'</span>);
+});
+
+server.listen(<span class="code-num">3000</span>, () =&gt; {
+    console.log(<span class="code-str">"Server in ascolto sulla porta 3000"</span>);
+});
+                    </div>
+
+                    <p class="pill-label">11.2 Eventi data &amp; end</p>
+                    <div class="code">
+<span class="code-kw">let</span> body = <span class="code-str">''</span>;
+
+req.on(<span class="code-str">'data'</span>, chunk =&gt; {
+    body += chunk.toString();
+});
+
+req.on(<span class="code-str">'end'</span>, () =&gt; {
+    <span class="code-kw">const</span> data = <span class="code-kw">JSON</span>.parse(body);
+    console.log(data);
+});
+                    </div>
+
+                    <ul>
+                        <li><span class="code-inline">data</span>: chiamato più volte, ogni volta arriva un chunk.</li>
+                        <li><span class="code-inline">end</span>: chiamato una sola volta, quando il body è completo.</li>
+                        <li>Fare <span class="code-inline">JSON.parse</span> in <span class="code-inline">data</span> rischia SyntaxError perché il JSON è incompleto.</li>
+                    </ul>
+                </section>
+
+                <!-- 12. Design REST -->
+                <section class="section">
+                    <h2 class="section-title">12. Design REST – Best practices</h2>
+                    <p class="subtitle">URI con sostantivi, azioni nei metodi HTTP.</p>
+
+                    <p class="pill-label">Endpoint problematico</p>
+                    <div class="code">
+<span class="code-kw">DELETE</span> <span class="code-str">/annulla?biglietto=12</span>
+                    </div>
+
+                    <ul>
+                        <li>Verbo nell’URI (<span class="code-inline">/annulla</span>).</li>
+                        <li>ID passato come query.</li>
+                    </ul>
+
+                    <p class="pill-label">Versione corretta</p>
+                    <div class="code">
+<span class="code-kw">DELETE</span> <span class="code-str">/biglietti/12</span>
+                    </div>
+
+                    <ul>
+                        <li>URI identifica la risorsa (<span class="code-inline">/biglietti/12</span>).</li>
+                        <li>Metodo HTTP esprime l’azione (<span class="code-inline">DELETE</span>).</li>
+                    </ul>
+
+                    <p class="pill-label">Regole d’oro URI REST</p>
+                    <ul>
+                        <li>Sostantivi plurali: <span class="code-inline">/users</span>, <span class="code-inline">/orders</span>.</li>
+                        <li>Gerarchia chiara: <span class="code-inline">/users/5/orders/10</span>.</li>
+                        <li>Niente verbi: niente <span class="code-inline">/getUsers</span>.</li>
+                        <li>ID nell’URI, non solo in query string.</li>
+                        <li>Lowercase e trattini: <span class="code-inline">/user-profiles</span>.</li>
+                    </ul>
+                </section>
+
+                <!-- 13. cURL -->
+                <section class="section">
+                    <h2 class="section-title">13. cURL – testing API</h2>
+                    <p class="subtitle">Strumento da terminale per inviare richieste HTTP.</p>
+
+                    <p class="pill-label">Flag principali</p>
+                    <div class="flag-list">
+                        <div class="flag"><strong>-X</strong> – metodo HTTP (es. <span class="code-inline">-X POST</span>).</div>
+                        <div class="flag"><strong>-d</strong> – body della richiesta (es. JSON).</div>
+                        <div class="flag"><strong>-H</strong> – header (es. <span class="code-inline">Content-Type</span>).</div>
+                        <div class="flag"><strong>-i</strong> – mostra header di risposta.</div>
+                        <div class="flag"><strong>-v</strong> – verbose/debug.</div>
+                        <div class="flag"><strong>-O</strong> – salva output in file.</div>
+                        <div class="flag"><strong>--retry N</strong> – ritenta N volte.</div>
+                        <div class="flag"><strong>--retry-delay N</strong> – pausa tra tentativi.</div>
+                        <div class="flag"><strong>--max-time N</strong> – timeout in secondi.</div>
+                    </div>
+
+                    <p class="pill-label">Esempi</p>
+                    <div class="code">
+<span class="code-comm"># GET</span>
+curl https://api.example.com/users
+
+<span class="code-comm"># POST JSON</span>
+curl -X POST https://api.example.com/users \
+  -H <span class="code-str">"Content-Type: application/json"</span> \
+  -d <span class="code-str">'{"name":"Mario","email":"mario@example.com"}'</span>
+
+<span class="code-comm"># PUT</span>
+curl -X PUT https://api.example.com/users/10 \
+  -H <span class="code-str">"Content-Type: application/json"</span> \
+  -d <span class="code-str">'{"name":"Mario","email":"mario.new@example.com"}'</span>
+
+<span class="code-comm"># PATCH</span>
+curl -X PATCH https://api.example.com/users/10 \
+  -H <span class="code-str">"Content-Type: application/json"</span> \
+  -d <span class="code-str">'{"email":"mario.new@example.com"}'</span>
+
+<span class="code-comm"># DELETE</span>
+curl -X DELETE https://api.example.com/users/10
+
+<span class="code-comm"># con header risposta</span>
+curl -i https://api.example.com/users
+
+<span class="code-comm"># retry + timeout</span>
+curl --retry 3 --retry-delay 2 --max-time 10 https://api.example.com/users
+                    </div>
+                </section>
+
+                <!-- 14. Riepilogo -->
+                <section class="section">
+                    <h2 class="section-title">14. Riepilogo lampo</h2>
+                    <p class="subtitle">Punti chiave da ricordare per la verifica.</p>
+                    <ul>
+                        <li>REST è <span class="highlight">stateless</span>, ogni richiesta è indipendente e auto-contenuta.</li>
+                        <li>GET è safe e idempotente, POST non è idempotente e ha side effects.</li>
+                        <li>PUT sostituisce tutto, PATCH modifica solo i campi indicati.</li>
+                        <li>DELETE è idempotente: chiamarlo più volte ha lo stesso effetto finale.</li>
+                        <li>Nesting risorse per relazioni gerarchiche (<span class="code-inline">/artisti/3/concerti</span>).</li>
+                        <li>Status code: 2xx successo, 4xx errore client, 5xx errore server.</li>
+                        <li><span class="highlight">Content-Type</span> è fondamentale per l’interpretazione del body.</li>
+                        <li>SemVer: MAJOR.MINOR.PATCH, <span class="code-inline">^</span> accetta minor+patch, <span class="code-inline">~</span> solo patch.</li>
+                        <li>Promise hanno 3 stati; <span class="code-inline">then</span> per successi, <span class="code-inline">catch</span> per errori, <span class="code-inline">finally</span> sempre.</li>
+                        <li><span class="highlight">async</span> restituisce sempre una Promise, <span class="highlight">await</span> sospende la funzione.</li>
+                        <li><span class="code-inline">fetch</span> è asincrono, <span class="code-inline">response.json()</span> legge uno stream.</li>
+                        <li><span class="code-inline">fetch</span> non fallisce automaticamente su 400/500: devi controllare <span class="code-inline">response.ok</span>.</li>
+                        <li>Node.js usa eventi <span class="code-inline">data</span> e <span class="code-inline">end</span> perché il body arriva a pezzi.</li>
+                        <li>URI REST: sostantivi plurali, niente verbi, ID nell’URI.</li>
+                        <li>cURL è perfetto per testare rapidamente API da terminale.</li>
+                    </ul>
+                </section>
+            </div>
+        </article>
+    </section>
+
+    <p class="footer-note">Suggerimento: apri questo file durante la verifica come mappa mentale visiva su REST, HTTP, async/await, Node.js, NPM e cURL.</p>
+</main>
+</body>
+</html>
+```

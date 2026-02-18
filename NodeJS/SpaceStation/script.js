@@ -30,26 +30,32 @@ async function getMoludes() {
         let data = await response.json();
         let modules = data.modules;
         console.log(data.modules)
-        let  moduleList = [];
+        let moduleList = [];
         for(let module of modules){
-        let subsystems = module.systems.subsystems;
-        for(let subsystem of subsystems){
-        if (subsystem.status !== "nominal" ){
-            moduleList.push(module);
+        let degradedSystems = [];
+            if(module.systems.subsystems){
+                for(let subsystem of module.systems.subsystems){
+                    if(subsystem.status !== "nominal"){
+                        degradedSystems.push(subsystem.name);
+                    }
+                    
+                }
+                moduleList.push({
+                        moduleId: module.id,
+                        degradedSystemNames: degradedSystems
+                    })
+            }
         }
-
-        }
-        }
-        console.log(subsystem)
-        }
-   
-
+        return(moduleList)
+    }
 }
+
 
 async function printResults() {
-const results = await getPanels()
+const results = await getPanels();
+const results2 = await getMoludes();
 console.clear();
 console.log(results);
+console.log(results2)
 }
 printResults();
-getMoludes();
