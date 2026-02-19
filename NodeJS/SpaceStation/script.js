@@ -1,4 +1,4 @@
-const BASE_URL= "http://localhost:3000"
+const BASE_URL= "http://localhost:3001"
 
 async function getPanels(){
     const response = await fetch(BASE_URL+"/station/status");
@@ -36,7 +36,7 @@ async function getMoludes() {
             if(module.systems.subsystems){
                 for(let subsystem of module.systems.subsystems){
                     if(subsystem.status !== "nominal"){
-                        degradedSystems.push(subsystem.name);
+                        degradedSystems.push(subsystem);
                     }
                     
                 }
@@ -46,7 +46,7 @@ async function getMoludes() {
                     })
             }
         }
-        return(moduleList)
+        return moduleList
     }
 }
 

@@ -96,4 +96,4 @@ app.get('/station/modules', (req, res) => {
   });
 });
 
-app.listen(3000, () => console.log('Station API running on http://localhost:3000'));
+app.listen(3001, () => console.log('Station API running on http://localhost:3001'));
