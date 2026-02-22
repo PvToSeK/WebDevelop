@@ -50,12 +50,69 @@ async function getMoludes() {
     }
 }
 
+async function getExperiments() {
+    let response = await fetch(BASE_URL + "/station/modules");
+    let data = await response.json();
 
+    let totalPower = 0;
+    let totalCooling = 0;
+    let activeExperimentsCount = 0;
+
+    for (let module of data.modules) {
+        if (module.type === "laboratory") {
+            for (let experiment of module.experiments) {
+                if (experiment.status === "active") {
+                    activeExperimentsCount++;
+                    totalPower += experiment.resourceConsumption.power;
+                    totalCooling += experiment.resourceConsumption.cooling;
+                }
+            }
+        }
+    }
+
+    return {
+        totalPower: totalPower,
+        totalCooling: totalCooling,
+        activeExperimentsCount: activeExperimentsCount
+    };
+}
+async function getReservers() {
+    let response_status = await fetch(BASE_URL + "/station/status");
+    let response_modules = await fetch(BASE_URL + "/station/modules");
+    let data_status = await response_status.json();
+    let reserves = data_status.power.reserves;
+    let data_modules = await response_modules.json();
+
+if(reserves >= 95){
+    return ({
+        message : "Energia sufficiente, nessuna azione necessaria"
+    })
+}
+    let active_experiments = [];
+    for(let module of data_modules.modules){
+        if(module.experiments){
+        for(let experiment of module.experiments){
+            if(experiment.status === "active"){
+                active_experiments.push({
+                    experimentID : experiment.id,
+                    name : experiment.name,
+                    powerConsumption : experiment.resourceConsumption.power
+                })
+            }
+        }
+    }
+}  
+    return active_experiments;
+}
 async function printResults() {
 const results = await getPanels();
 const results2 = await getMoludes();
+const result3 = await getExperiments();
+const result4 = await getReservers();
 console.clear();
 console.log(results);
-console.log(results2)
+console.log(results2);
+console.log(result3);
+console.log(result4);
 }
 printResults();
