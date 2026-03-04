@@ -107,7 +107,12 @@ async function executePendingCommands() {
 async function executeEmergencyStop(){
     let response = await fetch('http://localhost:3000/experiments')
     let data = await response.json();
-
+    let maxPower = 0;
+    for(let experiment of data.experiments){
+        if(experiment.status === "active" && experiment.power> maxPower){
+            
+        }
+    }
 
 
 
