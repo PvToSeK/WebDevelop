@@ -25,14 +25,14 @@ async function getPanels(){
 }
 
 async function getMoludes() {
+    let degradedSystems = [];
+    let moduleList = [];
     let response = await fetch(BASE_URL + "/station/modules");
     if(response.ok){ 
         let data = await response.json();
         let modules = data.modules;
         console.log(data.modules)
-        let moduleList = [];
         for(let module of modules){
-        let degradedSystems = [];
             if(module.systems.subsystems){
                 for(let subsystem of module.systems.subsystems){
                     if(subsystem.status !== "nominal"){
