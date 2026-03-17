@@ -3,14 +3,14 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());
-let clienti = [{id:1,nome:"Han Solo", specie: "umano", crediti : 1500},
-    {id:2,nome:"Chewbecca", specie: "wookie", crediti : 900},
-    {id:3,nome:"Greedo", specie: "rodiano", crediti : 300},
-    {id:4,nome:"Hammerhead", specie: "ithoriano", crediti : 200}];
-let bevande = [{id: 1, nome: "Corelian Ale", prezzo : 50,gradiazione:8},{
-id: 2, nome: "Juice", prezzo : 80,gradiazione:15},
-{id: 3, nome: "Meranze Gold", prezzo : 120,gradiazione:8},
-{id: 4, nome: "Spotchka", prezzo : 200,gradiazione:20}
+let clienti = [{id:1,nome:"Han Solo", specie: "umano", credito : 1500},
+    {id:2,nome:"Chewbecca", specie: "wookie", credito : 900},
+    {id:3,nome:"Greedo", specie: "rodiano", credito : 300},
+    {id:4,nome:"Hammerhead", specie: "ithoriano", credito : 200}];
+let bevande = [{id: 1, nome: "Corelian Ale", prezzo : 50,gradazione:8},{
+id: 2, nome: "Juice", prezzo : 80,gradazione:15},
+{id: 3, nome: "Meranze Gold", prezzo : 120,gradazione:8},
+{id: 4, nome: "Spotchka", prezzo : 200,gradazione:20}
 ]    
 let nextClientId = clienti.length +1;
 
@@ -43,8 +43,40 @@ if(req.method !== "POST" && req.method !== "PUT"){
     return next();
 }
     const nome = req.body.nome;
+    if(!nome){
+        return res.status(400).json({error : "Il nome non è valido. "})
+    }
     const specie = req.body.specie;
-    const crediti = req.body.crediti;
+        if(!specie){
+        return res.status(400).json({error : "La specie non è valida. "});
+    }
+    const credito = parseInt(req.body.credito);
+        if(isNaN(credito) || credito< 0){
+        return res.status(400).json({error : "Il credito non è valido. "})
+    }
+    next();
+
+
+})
+
+app.post("/clienti",(req,res) =>{
+    let trovato = false
+    for(let cliente of clienti){
+        if(cliente.nome === req.body.nome){
+            trovato = true;
+        }
+    }
+    if(trovato){
+    return res.status(409).json({error: "Nome del cliente già esistente! "})    
+}
+        clienti.push({
+            id:nextClientId,
+            nome : req.body.nome,
+            specie : req.body.specie,
+            credito: req.body.credito
+        });
+        nextClientId++;
+        return res.json("Cliente creato correttamente! ")
 
 })
 app.get("/clienti", (req,res) =>{
