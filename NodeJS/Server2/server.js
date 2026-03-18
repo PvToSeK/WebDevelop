@@ -79,6 +79,23 @@ app.post("/clienti",(req,res) =>{
         return res.json("Cliente creato correttamente! ")
 
 })
+
+app.get("/clienti/:id",(req,res)=>{
+    let id = parseInt(req.params.id);
+    let clienteTrovato = null;
+    for(let cliente of clienti){
+        if(id === cliente.id){
+            clienteTrovato = cliente;
+        }
+    }
+    if(clienteTrovato){
+        res.json(clienteTrovato);
+    }else{
+            res.status(404).json({error: "Id non trovato"})
+        }
+    }
+)
+
 app.get("/clienti", (req,res) =>{
     res.json(clienti);
 })
