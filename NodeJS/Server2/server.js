@@ -76,8 +76,11 @@ app.post("/clienti",(req,res) =>{
             credito: req.body.credito
         });
         nextClientId++;
-        return res.json("Cliente creato correttamente! ")
+        return res.json("Cliente creato correttamente! ");
 
+})
+app.get("/clienti", (req,res) =>{
+    return res.json(clienti);
 })
 
 app.get("/clienti/:id",(req,res)=>{
@@ -95,10 +98,46 @@ app.get("/clienti/:id",(req,res)=>{
         }
     }
 )
-
-app.get("/clienti", (req,res) =>{
-    res.json(clienti);
+app.put("/clienti/:id",(req,res)=>{
+    let id = parseInt(req.params.id);
+    let clienteTrovato = null;
+    for(cliente of clienti){
+        if(id === cliente.id){
+            clienteTrovato = cliente;
+        }    
+        }
+        if(!clienteTrovato){
+        return res.status(404).json({error: "Id non trovato"})
+    }
+    clienteTrovato['nome'] = req.body.nome;
+    clienteTrovato['specie'] = req.body.specie;
+    clienteTrovato['credito'] = req.body.credito;
+    
+    return res.json(clienteTrovato);
 })
+
+app.delete("/clienti/:id",(req,res)=>{
+    let id = parseInt(req.params.id);
+    let nuoviClienti = [];
+    let trovato= false;
+    for(cliente of clienti){
+        if(id !== cliente.id){
+        nuoviClienti.push(cliente);
+        }else{
+            trovato = true;
+        }
+    }
+    if(!trovato){
+        return res.status(404).json({error: "Id non trovato"})}
+    clienti = nuoviClienti;
+    return res.json(nuoviClienti);
+
+});
+app.get("/bevande",(req,res)=>{
+    return res.json(bevande);
+
+})
+app.use("/ordine")
 
 
 
