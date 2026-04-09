@@ -9,7 +9,7 @@ let clienti = [{ id: 1, nome: "Han Solo", specie: "umano", credito: 1500 },
 { id: 4, nome: "Hammerhead", specie: "ithoriano", credito: 200 }];
 let nextClientId = clienti.length + 1;
 let bevande = [
-    { id: 1, nome: "Corelian Ale", prezzo: 50, gradazione: 8 }, 
+    { id: 1, nome: "Corelian Ale", prezzo: 50, gradazione: 8 },
     { id: 2, nome: "Juice", prezzo: 80, gradazione: 15 },
     { id: 3, nome: "Meranze Gold", prezzo: 120, gradazione: 8 },
     { id: 4, nome: "Spotchka", prezzo: 200, gradazione: 20 }
@@ -36,7 +36,15 @@ app.use("/clienti", (req, res, next) => {
     }
     next();
 })
-
+app.use("/clienti", (req, res, next) => {
+    const ruolo = req.headers["x-ruolo"];
+    if(!ruolo){
+        req.ruolo = 'ospite';
+    }else{
+        req.ruolo = ruolo;
+    }
+    next();
+})
 app.use("/clienti", (req, res, next) => {
     const gettoni = parseInt(req.headers["x-gettoni"]);
     if (isNaN(gettoni)) {
@@ -64,9 +72,8 @@ app.use("/clienti", (req, res, next) => {
         return res.status(400).json({ error: "Il credito non è inserito. " })
     }
     next();
-
-
 })
+
 
 app.post("/clienti", (req, res) => {
     let trovato = false
@@ -107,6 +114,22 @@ app.get("/clienti/:id", (req, res) => {
     }
 }
 )
+app.get("/clienti/:id/ordini",(req,res) =>{
+    let id = parseInt(req.params.id);
+    let clienteTrovato = null;
+    if(isNaN(id)){
+        return res.status(400).json({error: "L'id non è valido"});
+    }
+    for(let cliente of clienti){
+        if(cliente.id === id){
+            clienteTrovato = cliente;
+        }
+    }
+    if(!clienteTrovato){
+        return res.status(404).json({error: "Cliente non trovato"});
+    }
+
+})
 app.put("/clienti/:id", (req, res) => {
     let id = parseInt(req.params.id);
     let clienteTrovato = null;
@@ -143,10 +166,29 @@ app.delete("/clienti/:id", (req, res) => {
     return res.json(nuoviClienti);
 
 });
+app.use("/bevande", (req, res, next) => {
+    let gradazione_max = parseInt(req.headers["x-gradazione-max"]);
+    if (isNaN(gradazione_max)) {
+        req.gradazioneMax = null;
+    } else {
+        req.gradazioneMax = gradazione_max;
+    }
+    next();
+});
 app.get("/bevande", (req, res) => {
-    return res.json(bevande);
-
-})
+    let bevandeMin = [];
+    let gradazioneMax = req.gradazioneMax;
+    if (!gradazioneMax) {
+        return res.json(bevande);
+    }else{
+        for(let bevanda of bevande){
+            if(bevanda.gradazione <= gradazioneMax){
+                bevandeMin.push(bevanda);
+            }
+        }
+        return res.status(200).json(bevandeMin);
+    }
+});
 app.use("/ordini", (req, res, next) => {
     if (req.method === "POST") {
         let clienteId = parseInt(req.body.clienteId);
