@@ -20,6 +20,7 @@ let ordini = [
     { id: 3, clienteId: 3, bevandaId: 2, quantita: 3, costo_base: 240, maggiorazione: 36, costo_totale: 276, credito_rimasto: 24 },
     { id: 4, clienteId: 1, bevandaId: 3, quantita: 2, costo_base: 240, maggiorazione: 0, costo_totale: 240, credito_rimasto: 1160 }
 ];
+
 let nextOrdineId = ordini.length + 1;
 
 app.use((req, res, next) => {
@@ -117,6 +118,7 @@ app.get("/clienti/:id", (req, res) => {
 app.get("/clienti/:id/ordini",(req,res) =>{
     let id = parseInt(req.params.id);
     let clienteTrovato = null;
+    let OrdinidaDare = [];
     if(isNaN(id)){
         return res.status(400).json({error: "L'id non è valido"});
     }
@@ -128,8 +130,23 @@ app.get("/clienti/:id/ordini",(req,res) =>{
     if(!clienteTrovato){
         return res.status(404).json({error: "Cliente non trovato"});
     }
+    // per ogni ordine cerco match con id clientr
+    for(let ordine of ordini){
+        if(ordine.clienteId === id){
+            if(req.ruolo === 'admin'){
+                OrdinidaDare.push(ordine);
+                //return res.json(OrdinidaDare)
+            }else{
+                
+                OrdinidaDare.push({
 
+                });
+                //return res.json()
+            }
+        }
+    }
 })
+
 app.put("/clienti/:id", (req, res) => {
     let id = parseInt(req.params.id);
     let clienteTrovato = null;
