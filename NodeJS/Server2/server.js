@@ -39,9 +39,9 @@ app.use("/clienti", (req, res, next) => {
 })
 app.use("/clienti", (req, res, next) => {
     const ruolo = req.headers["x-ruolo"];
-    if(!ruolo){
+    if (!ruolo) {
         req.ruolo = 'ospite';
-    }else{
+    } else {
         req.ruolo = ruolo;
     }
     next();
@@ -115,38 +115,102 @@ app.get("/clienti/:id", (req, res) => {
     }
 }
 )
-app.get("/clienti/:id/ordini",(req,res) =>{
+app.get("/clienti/:id/ordini", (req, res) => {
     let id = parseInt(req.params.id);
     let clienteTrovato = null;
     let OrdinidaDare = [];
-    if(isNaN(id)){
-        return res.status(400).json({error: "L'id non è valido"});
+    let ordiniFiltrati = [];
+    if (isNaN(id)) {
+        return res.status(400).json({ error: "L'id non è valido" });
     }
+    for (let cliente of clienti) {
+        if (cliente.id === id) {
+            clienteTrovato = cliente;
+        }
+    }
+    if (!clienteTrovato) {
+        return res.status(404).json({ error: "Cliente non trovato" });
+    }
+    // per ogni ordine cerco match con id clientr
+    for (let ordine of ordini) {
+        if (ordine.clienteId === id) {
+
+            OrdinidaDare.push({
+                id: ordine.id,
+                clienteId: ordine.clienteId,
+                bevandaId: ordine.bevandaId,
+                quantita: ordine.quantita,
+                costo_base: ordine.costo_base,
+                maggiorazione: ordine.maggiorazione,
+                costo_totale: ordine.costo_totale,
+                credito_rimasto: ordine.credito_rimasto
+            })
+            ordiniFiltrati.push({
+                id: ordine.id,
+                clienteId: ordine.clienteId,
+                bevandaId: ordine.bevandaId,
+                quantita: ordine.quantita,
+                costo_base: ordine.costo_base,
+                maggiorazione: ordine.maggiorazione,
+                credito_rimasto: ordine.credito_rimasto
+            });
+            //return res.json()
+        }
+    }
+    if (req.ruolo === 'admin') {
+        return res.json(OrdinidaDare);
+    } else {
+        return res.json(ordiniFiltrati);
+    } //return res.json(OrdinidaDare)
+}
+
+)
+app.get('/clienti/:id/riepilogo', (req,res)=>{
+    
+    let id = parseInt(req.params.id);
+    let bevandaId = 0;
+    let quantitaMax = 0;
+    let clienteTrovato = null;
+    let bevandaTrovata = null;    
+    let contaOrdini = 0;
+    let totale_speso = 0;
     for(let cliente of clienti){
         if(cliente.id === id){
             clienteTrovato = cliente;
         }
     }
-    if(!clienteTrovato){
-        return res.status(404).json({error: "Cliente non trovato"});
-    }
-    // per ogni ordine cerco match con id clientr
     for(let ordine of ordini){
         if(ordine.clienteId === id){
-            if(req.ruolo === 'admin'){
-                OrdinidaDare.push(ordine);
-                //return res.json(OrdinidaDare)
-            }else{
-                
-                OrdinidaDare.push({
-
-                });
-                //return res.json()
-            }
+            contaOrdini++;
+            totale_speso += ordine.costo_totale;
+        }
+        if(ordine.quantita > quantitaMax){
+            quantitaMax = ordine.quantita;
+            bevandaId = ordine.bevandaId;
         }
     }
-})
+    for(let bevanda of bevande){
+        if(bevanda.id === bevandaId){
+        bevandaTrovata = bevanda;    
+        }
+    }
 
+
+    if(isNaN(id)){
+        return res.status(400).json({error: "Id non è valido"});
+    }
+    if(!clienteTrovato){
+    return res.status(404).json({error: "Cliente non trovato"});
+    }
+    return res.json({
+        cliente: clienteTrovato.nome,
+        credito_attuale: clienteTrovato.credito,
+        numero_ordini: contaOrdini,
+        totale_speso: totale_speso,
+        bevanda_preferita: bevandaTrovata.nome,
+
+    })
+})
 app.put("/clienti/:id", (req, res) => {
     let id = parseInt(req.params.id);
     let clienteTrovato = null;
@@ -197,9 +261,9 @@ app.get("/bevande", (req, res) => {
     let gradazioneMax = req.gradazioneMax;
     if (!gradazioneMax) {
         return res.json(bevande);
-    }else{
-        for(let bevanda of bevande){
-            if(bevanda.gradazione <= gradazioneMax){
+    } else {
+        for (let bevanda of bevande) {
+            if (bevanda.gradazione <= gradazioneMax) {
                 bevandeMin.push(bevanda);
             }
         }
