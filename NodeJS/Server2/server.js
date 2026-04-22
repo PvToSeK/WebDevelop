@@ -22,7 +22,22 @@ let ordini = [
 ];
 
 let nextOrdineId = ordini.length + 1;
+let taglie = [
+    { id: 1, clienteId: 1, motivazione: "Debito al Crimine Organizzato", ricompensa: 500, attiva: true },
+    { id: 2, clienteId: 2, motivazione: "Traffico illegale", ricompensa: 750, attiva: false },
+    { id: 3, clienteId: 3, motivazione: "Debiti di gioco", ricompensa: 1000, attiva: true },
+    { id: 4, clienteId: 4, motivazione: "Furto spaziale", ricompensa: 600, attiva: true }
+];
 
+let nextTagliaId = taglie.length + 1;
+
+let missioni = [
+    { id: 1, codice: 'AURORA-1', descrizione: 'Recupero piani della Morte Nera', pianeta: 'Scarif', rischio: 'alto', clearance: 3, agente: 'Cassian Andor' },
+    { id: 2, codice: 'NEBULA-4', descrizione: 'Sorveglianza porto di Mos Eisley', pianeta: 'Tatooine', rischio: 'basso', clearance: 1, agente: 'Fulcrum' },
+    { id: 3, codice: 'ECLIPSE-7', descrizione: 'Sabotaggio generatori imperiali', pianeta: 'Lothal', rischio: 'alto', clearance: 2, agente: 'Hera Syndulla' },
+    { id: 4, codice: 'PHANTOM-2', descrizione: 'Estrazione agente sotto copertura', pianeta: 'Coruscant', rischio: 'critico', clearance: 3, agente: 'Sconosciuto' }
+
+];
 app.use((req, res, next) => {
     console.log(`[CANTINA LOG] ${req.method} ${req.url} `);
     next();
@@ -165,50 +180,58 @@ app.get("/clienti/:id/ordini", (req, res) => {
 }
 
 )
-app.get('/clienti/:id/riepilogo', (req,res)=>{
-    
+app.get('/clienti/:id/riepilogo', (req, res) => {
+
     let id = parseInt(req.params.id);
     let bevandaId = 0;
     let quantitaMax = 0;
     let clienteTrovato = null;
-    let bevandaTrovata = null;    
+    let bevandaTrovata = null;
     let contaOrdini = 0;
     let totale_speso = 0;
-    for(let cliente of clienti){
-        if(cliente.id === id){
+    let taglie_attive = 0;
+    let bevanda_preferita = null;
+    if (isNaN(id)) {
+        return res.status(400).json({ error: "Id non è valido" });
+    }
+    for (let cliente of clienti) {
+        if (cliente.id === id) {
             clienteTrovato = cliente;
         }
     }
-    for(let ordine of ordini){
-        if(ordine.clienteId === id){
+    for (let ordine of ordini) {
+        if (ordine.clienteId === id) {
             contaOrdini++;
             totale_speso += ordine.costo_totale;
-        }
-        if(ordine.quantita > quantitaMax){
-            quantitaMax = ordine.quantita;
-            bevandaId = ordine.bevandaId;
-        }
-    }
-    for(let bevanda of bevande){
-        if(bevanda.id === bevandaId){
-        bevandaTrovata = bevanda;    
+            if (ordine.quantita > quantitaMax) {
+                quantitaMax = ordine.quantita;
+                bevandaId = ordine.bevandaId;
+            }
         }
     }
-
-
-    if(isNaN(id)){
-        return res.status(400).json({error: "Id non è valido"});
+    for (let bevanda of bevande) {
+        if (bevanda.id === bevandaId) {
+            bevandaTrovata = bevanda;
+        }
     }
-    if(!clienteTrovato){
-    return res.status(404).json({error: "Cliente non trovato"});
+    for (let taglia of taglie) {
+        if (taglia.clienteId === id && taglia.attiva === true) {
+            taglie_attive++
+        }
+    }
+    if (!clienteTrovato) {
+        return res.status(404).json({ error: "Cliente non trovato" });
+    }
+    if (bevandaTrovata) {
+        bevanda_preferita = bevandaTrovata.nome;
     }
     return res.json({
         cliente: clienteTrovato.nome,
         credito_attuale: clienteTrovato.credito,
         numero_ordini: contaOrdini,
         totale_speso: totale_speso,
-        bevanda_preferita: bevandaTrovata.nome,
-
+        bevanda_preferita: bevanda_preferita,
+        taglie_attive: taglie_attive
     })
 })
 app.put("/clienti/:id", (req, res) => {
@@ -291,13 +314,17 @@ app.use("/ordini", (req, res, next) => {
 app.post("/ordini", (req, res) => {
     const clienteId = parseInt(req.body.clienteId);
     const bevandaId = parseInt(req.body.bevandaId);
+
     let clienteTrovato = null;
     let bevandaTrovata = null;
+    let taglieChiuse = 0;
+
     for (let cliente of clienti) {
         if (clienteId === cliente.id) {
             clienteTrovato = cliente;
         }
     }
+
     for (let bevanda of bevande) {
         if (bevandaId === bevanda.id) {
             bevandaTrovata = bevanda;
@@ -305,41 +332,142 @@ app.post("/ordini", (req, res) => {
     }
 
     if (!clienteTrovato) {
-        return res.status(404).json({ error: "cliente non trovato" })
+        return res.status(404).json({ error: "cliente non trovato" });
     }
+
     if (!bevandaTrovata) {
-        return res.status(404).json({ error: "bevanda non trovata" })
+        return res.status(404).json({ error: "bevanda non trovata" });
     }
+
     let costo_base = bevandaTrovata.prezzo * req.body.quantita;
     let maggiorazione = 0;
+
     if (bevandaTrovata.gradazione > 10) {
         maggiorazione = costo_base * 0.15;
     }
-    let costo_totale = costo_base + maggiorazione;
-    if (clienteTrovato.credito >= costo_totale) {
-        clienteTrovato.credito = clienteTrovato.credito - costo_totale;
-        ordini.push({
-            id: nextOrdineId,
-            clienteId: clienteId,
-            bevandaId: bevandaId,
-            quantita: req.body.quantita,
-            costo_base: costo_base,
-            maggiorazione: maggiorazione,
-            costo_totale: costo_totale,
-            credito_rimasto: clienteTrovato.credito
-        });
-        nextOrdineId++;
-        return res.status(201).json(ordini[ordini.length - 1]);
 
-    } else {
+    let costo_totale = costo_base + maggiorazione;
+
+    if (clienteTrovato.credito < costo_totale) {
         return res.status(402).json({ error: "credito non sufficiente" });
     }
-}
-);
+
+    clienteTrovato.credito -= costo_totale;
+
+    let nuovoOrdine = {
+        id: nextOrdineId,
+        clienteId: clienteId,
+        bevandaId: bevandaId,
+        quantita: req.body.quantita,
+        costo_base: costo_base,
+        maggiorazione: maggiorazione,
+        costo_totale: costo_totale,
+        credito_rimasto: clienteTrovato.credito,
+        taglia_riscossa: 0
+    };
+
+    for (let taglia of taglie) {
+        if (taglia.clienteId === clienteId && taglia.attiva === true) {
+            taglia.attiva = false;
+            taglieChiuse++;
+        }
+    }
+
+    nuovoOrdine.taglia_riscossa = taglieChiuse;
+
+    ordini.push(nuovoOrdine);
+    nextOrdineId++;
+
+    return res.status(201).json(nuovoOrdine);
+});
 app.get("/ordini", (req, res) => {
     return res.json(ordini);
 });
 
+app.use("/missioni", (req, res, next) => {
+    if (req.method === 'GET') {
+        return next();
+    } else {
+        return res.status(405).json({ error: "Metodo non consentito, le missioni non si toccano" })
+    }
+});
+app.use("/missioni", (req, res, next) => {
+    let clearance = parseInt(req.headers['x-clearance']);
+    if (isNaN(clearance)) {
+        req.clearance = 0;
+    } else {
+        req.clearance = clearance;
+    }
+    next();
+});
+app.use("/missioni", (req, res, next) => {
+    let missioniVisibili = [];
+    for (let missione of missioni) {
+        if (missione.clearance <= req.clearance) {
+            missioniVisibili.push(missione);
+        }
+    }
+    req.missioniVisibili = missioniVisibili;
+    next();
+});
+app.get("/missioni", (req, res) => {
+    let missioniOscurate = [];
+    for (let missione of req.missioniVisibili) {
+        missioniOscurate.push({
+            id: missione.id,
+            codice: missione.codice,
+            descrizione: missione.descrizione,
+            pianeta: missione.pianeta,
+            rischio: missione.rischio,
+            clearance: missione.clearance,
+            agente: '[CLASSIFICATO]'
+        })
+    }
+    if (req.clearance === 0) {
+        return res.status(403).json({ error: "Clearance insufficiente. Non sai niente" });
+    }
+    if (req.clearance === 1 || req.clearance === 2) {
+        return res.json(missioniOscurate);
+    } else {
+        return res.json(req.missioniVisibili);
+    }
+});
+app.get("/missioni/:id", (req, res) => {
+    let missioneTarget = null;
+
+    if (req.clearance === 0) {
+        return res.status(403).json({ error: "Non si puo'" });
+    }
+
+    let id = parseInt(req.params.id);
+    for (let missione of req.missioniVisibili) {
+        if (missione.id === id) {
+            missioneTarget = missione;
+        }
+    }
+    if (missioneTarget) {
+        if (req.clearance === 1 || req.clearance === 2) {
+            return res.json({
+                ...missioneTarget,
+                agente: "[CLASSIFICATO]"
+            });
+        } else {
+            return res.json(missioneTarget);
+        }
+    }
+    let esiste = false;
+    for (let missione of missioni) {
+        if (missione.id === id) {
+            esiste = true;
+        }
+    }
+
+    if (esiste) {
+        return res.status(403).json({ error: "Clearance insufficiente per questa missione." });
+    } else {
+        return res.status(404).json({ error: "Missione non trovata" });
+    }
+});
 
 
 
